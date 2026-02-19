@@ -1,52 +1,59 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Tool Việt Hóa XML</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artist Card Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
-  <h2>Tool Việt Hóa File XML (CreoStrings.xml)</h2>
-  <input type="file" id="fileInput" />
-  <button id="translateBtn">Dịch sang Tiếng Việt</button>
-  <a id="downloadLink" style="display:none;">Tải file dịch</a>
 
-  <script>
-    async function translateText(text) {
-      const res = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=" + encodeURIComponent(text));
-      const data = await res.json();
-      return data[0].map(x => x[0]).join("");
-    }
+<div class="container">
+    <h2>Nhập Thông Tin Card</h2>
+    <div class="form-group">
+        <input type="text" id="inputName" placeholder="Tên nghệ sĩ">
+        <select id="inputGender">
+            <option value="Nữ">Nữ</option>
+            <option value="Nam">Nam</option>
+            <option value="Khác">Khác</option>
+        </select>
+        <input type="text" id="inputDob" placeholder="Ngày sinh (ví dụ: 11/11)">
+        <input type="text" id="inputZodiac" placeholder="Cung hoàng đạo">
+        <input type="text" id="inputHobby" placeholder="Sở thích">
+        <label>Chọn ảnh đại diện:</label>
+        <input type="file" id="inputAvatar" accept="image/*">
+        <label>Chọn nền Card (tùy chọn):</label>
+        <input type="file" id="inputBg" accept="image/*">
+        <button onclick="generateCard()">Cập nhật Card</button>
+    </div>
 
-    document.getElementById("translateBtn").addEventListener("click", async () => {
-      const file = document.getElementById("fileInput").files[0];
-      if (!file) {
-        alert("Vui lòng chọn file XML trước!");
-        return;
-      }
+    <hr>
 
-      const text = await file.text();
-      let output = text;
+    <div id="captureArea">
+        <div class="card" id="artistCard">
+            <div class="card-content">
+                <div class="avatar-box">
+                    <img src="https://via.placeholder.com/150" id="displayAvatar" alt="Avatar">
+                </div>
+                <div class="info-box">
+                    <h3 class="card-title">PORTFOLIO CARD</h3>
+                    <p><strong>ID:</strong> <span id="displayId">---------</span></p>
+                    <p><strong>Tên:</strong> <span id="displayName">...</span></p>
+                    <p><strong>Giới tính:</strong> <span id="displayGender">...</span></p>
+                    <p><strong>Ngày sinh:</strong> <span id="displayDob">...</span></p>
+                    <p><strong>Cung:</strong> <span id="displayZodiac">...</span></p>
+                    <p><strong>Sở thích:</strong> <span id="displayHobby">...</span></p>
+                    <p><strong>Hiệu lực từ:</strong> <span id="displayTime">--/--/---- --:--:--</span></p>
+                    <p class="hashtag">#idoc_cardinf</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      // Regex tìm các chuỗi trong thẻ <string>
-      const regex = /<string name="([^"]+)">([\s\S]*?)<\/string>/g;
-      const matches = [...text.matchAll(regex)];
+    <button class="download-btn" onclick="downloadCard()">Tải Card .png</button>
+</div>
 
-      for (let match of matches) {
-        const original = match[2];
-        if (original.trim() === "") continue;
-        const translated = await translateText(original);
-        output = output.replace(original, translated);
-      }
-
-      // Xuất file XML mới
-      const blob = new Blob([output], { type: "text/xml" });
-      const url = URL.createObjectURL(blob);
-      const link = document.getElementById("downloadLink");
-      link.href = url;
-      link.download = "CreoStrings_vi.xml";
-      link.style.display = "block";
-      link.textContent = "👉 Tải file CreoStrings_vi.xml";
-    });
-  </script>
+<script src="script.js"></script>
 </body>
 </html>
