@@ -1,53 +1,54 @@
-function generateCard() {
-    // 1. Random ID 9 số
-    const randomId = Math.floor(100000000 + Math.random() * 900000000);
-    document.getElementById('displayId').innerText = randomId;
-
-    // 2. Set ngày giờ hiện tại
-    const now = new Date();
-    const timeString = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
-    document.getElementById('displayTime').innerText = timeString;
-
-    // 3. Lấy dữ liệu từ input
-    document.getElementById('displayName').innerText = document.getElementById('inputName').value || "Chưa nhập";
-    document.getElementById('displayGender').innerText = document.getElementById('inputGender').value;
-    document.getElementById('displayDob').innerText = document.getElementById('inputDob').value || "11/11";
-    document.getElementById('displayZodiac').innerText = document.getElementById('inputZodiac').value || "N/A";
-    document.getElementById('displayHobby').innerText = document.getElementById('inputHobby').value || "N/A";
-
-    // 4. Xử lý Ảnh đại diện
-    const avatarInput = document.getElementById('inputAvatar');
-    if (avatarInput.files && avatarInput.files[0]) {
+// Hàm preview ảnh cho Avatar và QR
+function previewImage(input, displayId) {
+    if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('displayAvatar').src = e.target.result;
-        }
-        reader.readAsDataURL(avatarInput.files[0]);
-    }
-
-    // 5. Xử lý Nền Card
-    const bgInput = document.getElementById('inputBg');
-    const cardElement = document.getElementById('artistCard');
-    if (bgInput.files && bgInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            cardElement.style.backgroundImage = `url('${e.target.result}')`;
-        }
-        reader.readAsDataURL(bgInput.files[0]);
-    } else {
-        cardElement.style.backgroundImage = "none";
-        cardElement.style.backgroundColor = "white";
+        reader.onload = (e) => document.getElementById(displayId).src = e.target.result;
+        reader.readAsDataURL(input.files[0]);
     }
 }
 
-// 6. Hàm tải card về máy
+// Hàm preview và set ảnh nền
+function previewBg(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('cardBg').style.backgroundImage = `url('${e.target.result}')`;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Lắng nghe các thanh trượt để căn chỉnh trực tiếp
+document.addEventListener('input', function() {
+    // Căn chỉnh QR
+    const qrX = document.getElementById('qrX').value;
+    const qrY = document.getElementById('qrY').value;
+    document.getElementById('displayQR').style.transform = `translate(${qrX}px, ${qrY}px)`;
+
+    // Căn chỉnh Nền
+    const opacity = document.getElementById('bgOpacity').value;
+    const scale = document.getElementById('bgScale').value;
+    const bg = document.getElementById('cardBg');
+    bg.style.opacity = opacity;
+    bg.style.transform = `scale(${scale})`;
+});
+
+function updateInfo() {
+    // Random ID và Time
+    document.getElementById('displayId').innerText = Math.floor(100000000 + Math.random() * 900000000);
+    document.getElementById('displayTime').innerText = new Date().toLocaleString('vi-VN');
+    
+    // Text
+    document.getElementById('displayName').innerText = document.getElementById('inputName').value || "N/A";
+    document.getElementById('displayHobby').innerText = document.getElementById('inputHobby').value || "N/A";
+}
+
 function downloadCard() {
     const area = document.getElementById('captureArea');
-    html2canvas(area).then(canvas => {
+    html2canvas(area, { useCORS: true, scale: 2 }).then(canvas => {
         const link = document.createElement('a');
-        link.download = 'artist-card.png';
+        link.download = 'card-npc.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
     });
 }
-
